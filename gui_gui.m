@@ -321,6 +321,30 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton12 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+clear data_cell;clear filter;clear m;clear n;
+clear hangshu;clear lieshu;clear hang;clear lie;
+clear Filename;clear Pathname;clear str;
+clear CloumnName;clear dataExcel;
+
+data_cell = get(handles.uitable5,'Data');    %转换元胞数组
+[m,n] = size(data_cell);
+if(m~=0 & n~=0)
+    filter = {'*.xlsx';'*.xls';'*.txt';'*.docx';'*.*'};
+    [Filename,Pathname] = uiputfile(filter,'另存为','data.xlsx');  %创建文件保存对话框
+    if (Filename==0 & Pathname==0)
+        msgbox('您没有保存数据!','确认','error');
+    else
+            str=[Pathname Filename];
+            CloumnName=get(handles.uitable5,'ColumnName')           %获取表格的列名             
+            dataExcel=cell(size(data_cell,1)+1,size(data_cell,2));
+            dataExcel(1,:)=CloumnName;                                            %存入表格列名；
+            dataExcel(2:end,:)=num2cell(data_cell);                                              %获取表格数据；
+            xlswrite(str,dataExcel);                                              %将新单元数组写入指定的EXCEl文件中；
+            msgbox('保存数据完毕！','确认','warn');
+    end
+else
+    msgbox('保存的数据不能为空！','确认','error');
+end
 
 
 % --- Executes on button press in pushbutton13.
