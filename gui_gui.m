@@ -886,7 +886,7 @@ oldData = oldData{1,1};
 % newArray = {'', ''};
 prompt ={'参数名称','参数值'}; %对话框内容提示
 title = '请输入数据';    %对话框标题
-lines = [1,1]; %设置输入框行数
+lines = [1 25;1 25]; %设置输入框行数及文本框大小
 if (row4 ~= 1&row4 ~= size(oldData,1) )
     newData_front = oldData(1:row4-1,:)  
     newData_back = oldData(row4:end,:)
