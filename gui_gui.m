@@ -22,7 +22,7 @@ function varargout = gui_gui(varargin)
 
 % Edit the above text to modify the response to help gui_gui
 
-% Last Modified by GUIDE v2.5 29-Oct-2019 19:10:26
+% Last Modified by GUIDE v2.5 30-Oct-2019 11:56:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -180,7 +180,7 @@ clear Filename;clear Pathname;clear str;
 clear CloumnName;clear dataExcel;
 
 table_data = get(handles.uitable2,'Data');  %table_data含两个相同的元胞数组（2×1 cell 数组）
-data_cell = cell2mat(table_data(1,1));    %转换元胞数组
+data_cell = table_data(1,1);    %转换元胞数组
 filter = {'*.xlsx';'*.xls';'*.txt';'*.docx';'*.*'};
 [Filename,Pathname] = uiputfile(filter,'另存为','data.xlsx');  %创建文件保存对话框
 if (Filename==0 & Pathname==0)
@@ -188,12 +188,12 @@ if (Filename==0 & Pathname==0)
 else
     str=[Pathname Filename];
     %获取表格的列名
-    CloumnName=get(handles.uitable2,'ColumnName') ;                          
+    CloumnName=get(handles.uitable2,'ColumnName')                       
     CloumnName=CloumnName{2,1};
-    
-    dataExcel=cell(size(data_cell,1)+1,size(data_cell,2));
+    data_cell = data_cell{1,1};
+    dataExcel = cell(size(data_cell,1)+1,size(data_cell,2))
     dataExcel(1,:)=CloumnName;                                            %获取表格列名；
-    dataExcel(2:end,:)=num2cell(data_cell);                                              %获取表格数据；
+    dataExcel(2:end,:)=data_cell;                                           %获取表格数据；
     xlswrite(str,dataExcel);                                              %将新单元数组写入指定的EXCEl文件中；
     msgbox('保存数据完毕！','确认','warn');
 end
@@ -627,7 +627,7 @@ global row;
 %重组矩阵
 oldData = get(handles.uitable1,'Data');%获取表格数据矩阵 
 oldData = num2cell(oldData{1,1});
-newArray = {'', '', ''};
+% newArray = {'', '', ''};
 prompt ={'测深','井斜角','方位角'}; %对话框内容提示
 title = '请输入数据';    %对话框标题
 lines = [1,1,1]; %设置输入框行数
@@ -642,14 +642,14 @@ if (row ~= 1&row ~= size(oldData,1) )
     newData = [newData_front;newArray;newData_back];
     set(handles.uitable1,'Data',cell2mat(newData));  %显示到表格中
 elseif (row == 1) 
-    newData = [newArray;oldData];
-    set(handles.uitable1,'Data',newData);  %显示到表格中
-    tab = inputdlg(prompt,title,lines,def);  %对话框设置
-    newrow1 = tab{1};  %对话框第一行内容
+%     newData = [newArray;oldData];
+%     set(handles.uitable1,'Data',newData);  %显示到表格中
+    tab = inputdlg(prompt,title,lines);  %对话框设置
+    newrow1 = str2num(tab{1});   %对话框第一行内容
     newrow2 = str2num(tab{2}); %对话框第二行内容
     newrow3 = str2num(tab{3}); %对话框第三行内容
     newArray = {newrow1, newrow2, newrow3}; %保存在新的矩阵中
-    newData = [newArray;oldData];
+    newData = [newArray;oldData]
     set(handles.uitable1,'Data',cell2mat(newData));  %显示到表格中
 elseif (row == size(oldData,1))
     [indx tf]=listdlg('ListString',{'前插一行','后插一行'},...
@@ -657,22 +657,22 @@ elseif (row == size(oldData,1))
     'SelectionMode','single','ListSize',[180 80]);
     if (indx == 1)
         newData_front = oldData(1:row-1,:);  
-        newData_back = oldData(row:end,:);
-        newData = [newData_front;newArray;newData_back];
-        set(handles.uitable1,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
-        newrow1 = tab{1};  %对话框第一行内容
+        newData_back = oldData(row,:);
+%         newData = [newData_front;newArray;newData_back];
+%         set(handles.uitable1,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
+        newrow1 = str2num(tab{1});   %对话框第一行内容
         newrow2 = str2num(tab{2}); %对话框第二行内容
         newrow3 = str2num(tab{3}); %对话框第三行内容
         newArray = {newrow1, newrow2, newrow3}; %保存在新的矩阵中
         newData = [newData_front;newArray;newData_back];
         set(handles.uitable1,'Data',cell2mat(newData));  %显示到表格中
     elseif(indx == 2)
-        newArray = {'', '', ''};
-        newData = [str2num(char(oldData));newArray];
-        set(handles.uitable1,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
-        newrow1 = tab{1};  %对话框第一行内容
+%         newArray = {'', '', ''};
+%         newData = [str2num(char(oldData));newArray];
+%         set(handles.uitable1,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
+        newrow1 = str2num(tab{1});  %对话框第一行内容
         newrow2 = str2num(tab{2}); %对话框第二行内容
         newrow3 = str2num(tab{3}); %对话框第三行内容
         newArray = {newrow1, newrow2, newrow3}; %保存在新的矩阵中
@@ -708,32 +708,33 @@ clear newData_front newData_back newArray oldData...
 global row2;
 %重组矩阵
 oldData = get(handles.uitable2,'Data');  %获取表格数据矩阵 
-newArray = {'', '', '',''};
+oldData = oldData{1,1};
+% newArray = {'', '', '',''};
 prompt ={'壁厚','钢级','单位长度质量','长度'}; %对话框内容提示
 title = '请输入数据';    %对话框标题
 lines = [1,1,1,1]; %设置输入框行数
 if (row2 ~= 1&row2 ~= size(oldData,1) )
-    newData_front = oldData(1:row2-1,:);  
+    newData_front = oldData(1:row2-1,:);
     newData_back = oldData(row2:end,:);
-    newData = [newData_front;newArray;newData_back];
-    set(handles.uitable2,'Data',newData);  %显示到表格中
-    tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%     newData = [newData_front;newArray;newData_back];
+%     set(handles.uitable2,'Data',newData);  %显示到表格中
+    tab = inputdlg(prompt,title,lines)  %对话框设置
     newrow1 = str2num(tab{1}); %对话框第一行内容
-    newrow2 = tab{2};  %对话框第二行内容
+    newrow2 = cellstr(tab{2});  %对话框第二行内容
     newrow3 = str2num(tab{3}); %对话框第三行内容
     newrow4 = str2num(tab{4}); %对话框第四行内容
-    newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
-    newData = [newData_front;newArray;newData_back];
+    newArray = {newrow1, newrow2{1,1}, newrow3,newrow4}; %保存在新的矩阵中
+    newData = [newData_front;newArray;newData_back]
     set(handles.uitable2,'Data',newData);  %显示到表格中
 elseif (row2 == 1) 
-    newData = [newArray;oldData];
-    set(handles.uitable2,'Data',newData);  %显示到表格中
-    tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%     newData = [newArray;oldData];
+%     set(handles.uitable2,'Data',newData);  %显示到表格中
+    tab = inputdlg(prompt,title,lines)  %对话框设置
     newrow1 = str2num(tab{1}); %对话框第一行内容
-    newrow2 = tab{2};  %对话框第二行内容
+    newrow2 = cellstr(tab{2});  %对话框第二行内容
     newrow3 = str2num(tab{3}); %对话框第三行内容
     newrow4 = str2num(tab{4}); %对话框第四行内容
-    newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
+    newArray = {newrow1, newrow2{1,1}, newrow3,newrow4}; %保存在新的矩阵中
     newData = [newArray;oldData];
     set(handles.uitable2,'Data',newData);  %显示到表格中
 elseif (row2 == size(oldData,1))
@@ -743,27 +744,27 @@ elseif (row2 == size(oldData,1))
     if (indx == 1)
         newData_front = oldData(1:row2-1,:);  
         newData_back = oldData(row2:end,:);
-        newData = [newData_front;newArray;newData_back];
-        set(handles.uitable2,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%         newData = [newData_front;newArray;newData_back];
+%         set(handles.uitable2,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
         newrow1 = str2num(tab{1}); %对话框第一行内容
-        newrow2 = tab{2};  %对话框第二行内容
+        newrow2 = cellstr(tab{2});  %对话框第二行内容
         newrow3 = str2num(tab{3}); %对话框第三行内容
         newrow4 = str2num(tab{4}); %对话框第四行内容
-        newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
+        newArray = {newrow1, newrow2{1,1}, newrow3,newrow4}; %保存在新的矩阵中
         newData = [newData_front;newArray;newData_back];
         set(handles.uitable2,'Data',newData);  %显示到表格中
     elseif(indx == 2)
-        newData = [oldData;newArray];
-        set(handles.uitable2,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%         newData = [oldData;newArray];
+%         set(handles.uitable2,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
         newrow1 = str2num(tab{1}); %对话框第一行内容
-        newrow2 = tab{2};  %对话框第二行内容
+        newrow2 = cellstr(tab{2});  %对话框第二行内容
         newrow3 = str2num(tab{3}); %对话框第三行内容
         newrow4 = str2num(tab{4}); %对话框第四行内容
-        newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
-        new_Data = [oldData;newArray];
-        set(handles.uitable2,'Data',new_Data);  %显示到表格中
+        newArray = {newrow1, newrow2{1,1}, newrow3,newrow4}; %保存在新的矩阵中
+        newData = [oldData;newArray];
+        set(handles.uitable2,'Data',newData);  %显示到表格中
     end    
 end
 
@@ -776,6 +777,7 @@ clear newData;
 global row2;
 if(row2>0)
     newData = get(handles.uitable2,'Data');  %获取表格数据矩阵
+    newData = newData{1,1};
     newData(row2,:) = [];   %删除选中的某行数据
     set(handles.uitable2,'Data',newData);  %显示到表格中
 else
@@ -791,6 +793,7 @@ clear newData;
 global row3;
 if(row3>0)
     newData = get(handles.uitable3,'Data');  %获取表格数据矩阵
+    newData = newData{1,1};
     newData(row3,:) = [];   %删除选中的某行数据
     set(handles.uitable3,'Data',newData);  %显示到表格中
 else
@@ -808,34 +811,35 @@ clear newData_front newData_back newArray oldData...
 global row3;
 %重组矩阵
 oldData = get(handles.uitable3,'Data');  %获取表格数据矩阵 
-newArray = {'','','',''};
+oldData = num2cell(oldData{1,1});
+% newArray = {'','','',''};
 prompt ={'至测深','上提','下放','旋转'}; %对话框内容提示
 title = '请输入数据';    %对话框标题
 lines = [1,1,1,1]; %设置输入框行数
 if (row3 ~= 1&row3 ~= size(oldData,1) )
     newData_front = oldData(1:row3-1,:);  
     newData_back = oldData(row3:end,:);
-    newData = [newData_front;newArray;newData_back];
-    set(handles.uitable3,'Data',newData);  %显示到表格中
-    tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%     newData = [newData_front;newArray;newData_back];
+%     set(handles.uitable3,'Data',newData);  %显示到表格中
+    tab = inputdlg(prompt,title,lines)  %对话框设置
     newrow1 = str2num(tab{1});  %对话框第一行内容
     newrow2 = str2num(tab{2}); %对话框第二行内容
     newrow3 = str2num(tab{3}); %对话框第三行内容
     newrow4 = str2num(tab{4}); %对话框第三行内容
     newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
     newData = [newData_front;newArray;newData_back];
-    set(handles.uitable3,'Data',newData);  %显示到表格中
+    set(handles.uitable3,'Data',cell2mat(newData));  %显示到表格中
 elseif (row3 == 1) 
-    newData = [newArray;oldData];
-    set(handles.uitable3,'Data',newData);  %显示到表格中
-    tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%     newData = [newArray;oldData];
+%     set(handles.uitable3,'Data',newData);  %显示到表格中
+    tab = inputdlg(prompt,title,lines)  %对话框设置
     newrow1 = str2num(tab{1});  %对话框第一行内容
     newrow2 = str2num(tab{2}); %对话框第二行内容
     newrow3 = str2num(tab{3}); %对话框第三行内容
     newrow4 = str2num(tab{4}); %对话框第三行内容
     newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
     newData = [newArray;oldData];
-    set(handles.uitable3,'Data',newData);  %显示到表格中
+    set(handles.uitable3,'Data',cell2mat(newData));  %显示到表格中
 elseif (row3 == size(oldData,1))
     [indx tf]=listdlg('ListString',{'前插一行','后插一行'},...
     'Name','选择一个','OKString','确定','CancelString','取消',...
@@ -843,27 +847,27 @@ elseif (row3 == size(oldData,1))
     if (indx == 1)
         newData_front = oldData(1:row3-1,:);  
         newData_back = oldData(row3:end,:);
-        newData = [newData_front;newArray;newData_back];
-        set(handles.uitable3,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%         newData = [newData_front;newArray;newData_back];
+%         set(handles.uitable3,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
         newrow1 = str2num(tab{1});  %对话框第一行内容
         newrow2 = str2num(tab{2}); %对话框第二行内容
         newrow3 = str2num(tab{3}); %对话框第三行内容
         newrow4 = str2num(tab{4}); %对话框第三行内容
         newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
         newData = [newData_front;newArray;newData_back];
-        set(handles.uitable3,'Data',newData);  %显示到表格中
+        set(handles.uitable3,'Data',cell2mat(newData));  %显示到表格中
     elseif(indx == 2)
-        newData = [oldData;newArray];
-        set(handles.uitable3,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
+%         newData = [oldData;newArray];
+%         set(handles.uitable3,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
         newrow1 = str2num(tab{1});  %对话框第一行内容
         newrow2 = str2num(tab{2}); %对话框第二行内容
         newrow3 = str2num(tab{3}); %对话框第三行内容
         newrow4 = str2num(tab{4}); %对话框第三行内容
         newArray = {newrow1, newrow2, newrow3,newrow4}; %保存在新的矩阵中
         new_Data = [oldData;newArray];
-        set(handles.uitable3,'Data',new_Data);  %显示到表格中
+        set(handles.uitable3,'Data',cell2mat(new_Data));  %显示到表格中
     end    
 end
 
@@ -878,28 +882,29 @@ clear newData_front newData_back newArray oldData...
 global row4;
 %重组矩阵
 oldData = get(handles.uitable4,'Data');  %获取表格数据矩阵 
-newArray = {'', ''};
+oldData = oldData{1,1};
+% newArray = {'', ''};
 prompt ={'参数名称','参数值'}; %对话框内容提示
 title = '请输入数据';    %对话框标题
 lines = [1,1]; %设置输入框行数
 if (row4 ~= 1&row4 ~= size(oldData,1) )
-    newData_front = oldData(1:row4-1,:);  
-    newData_back = oldData(row4:end,:);
-    newData = [newData_front;newArray;newData_back];
-    set(handles.uitable4,'Data',newData);  %显示到表格中
-    tab = inputdlg(prompt,title,lines,def)  %对话框设置
-    newrow1 = tab{1};  %对话框第一行内容
+    newData_front = oldData(1:row4-1,:)  
+    newData_back = oldData(row4:end,:)
+%     newData = [newData_front;newArray;newData_back];
+%     set(handles.uitable4,'Data',newData);  %显示到表格中
+    tab = inputdlg(prompt,title,lines)  %对话框设置
+    newrow1 = cellstr(tab{1});  %对话框第一行内容
     newrow2 = str2num(tab{2}); %对话框第二行内容
-    newArray = {newrow1, newrow2}; %保存在新的矩阵中
+    newArray = {newrow1{1,1}, newrow2}; %保存在新的矩阵中
     newData = [newData_front;newArray;newData_back];
     set(handles.uitable4,'Data',newData);  %显示到表格中
 elseif (row4 == 1) 
-    newData = [newArray;oldData];
-    set(handles.uitable4,'Data',newData);  %显示到表格中
-    tab = inputdlg(prompt,title,lines,def)  %对话框设置
-    newrow1 = tab{1};  %对话框第一行内容
+%     newData = [newArray;oldData];
+%     set(handles.uitable4,'Data',newData);  %显示到表格中
+    tab = inputdlg(prompt,title,lines)  %对话框设置
+    newrow1 = cellstr(tab{1});  %对话框第一行内容
     newrow2 = str2num(tab{2}); %对话框第二行内容
-    newArray = {newrow1, newrow2}; %保存在新的矩阵中
+    newArray = {newrow1{1,1}, newrow2}; %保存在新的矩阵中
     newData = [newArray;oldData];
     set(handles.uitable4,'Data',newData);  %显示到表格中
 elseif (row4 == size(oldData,1))
@@ -909,22 +914,21 @@ elseif (row4 == size(oldData,1))
     if (indx == 1)
         newData_front = oldData(1:row4-1,:);  
         newData_back = oldData(row4:end,:);
-        newData = [newData_front;newArray;newData_back];
-        set(handles.uitable4,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
-        newrow1 = tab{1};  %对话框第一行内容
-    newrow2 = str2num(tab{2}); %对话框第二行内容
-    newArray = {newrow1, newrow2}; %保存在新的矩阵中
+%         newData = [newData_front;newArray;newData_back];
+%         set(handles.uitable4,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
+        newrow1 = cellstr(tab{1});  %对话框第一行内容
+        newrow2 = str2num(tab{2}); %对话框第二行内容
+        newArray = {newrow1{1,1}, newrow2}; %保存在新的矩阵中
         newData = [newData_front;newArray;newData_back];
         set(handles.uitable4,'Data',newData);  %显示到表格中
     elseif(indx == 2)
-        newArray = {'', '', ''};
-        newData = [oldData;newArray];
-        set(handles.uitable4,'Data',newData);  %显示到表格中
-        tab = inputdlg(prompt,title,lines,def)  %对话框设置
-        newrow1 = tab{1};  %对话框第一行内容
+%         newData = [oldData;newArray];
+%         set(handles.uitable4,'Data',newData);  %显示到表格中
+        tab = inputdlg(prompt,title,lines)  %对话框设置
+        newrow1 = cellstr(tab{1});  %对话框第一行内容
         newrow2 = str2num(tab{2}); %对话框第二行内容
-        newArray = {newrow1, newrow2}; %保存在新的矩阵中
+        newArray = {newrow1{1,1}, newrow2}; %保存在新的矩阵中
         new_Data = [oldData;newArray];
         set(handles.uitable4,'Data',new_Data);  %显示到表格中
     end    
@@ -939,12 +943,12 @@ clear newData;
 global row4;
 if(row4>0)
     newData = get(handles.uitable4,'Data');  %获取表格数据矩阵
+    newData = newData{1,1};
     newData(row4,:) = [];   %删除选中的某行数据
     set(handles.uitable4,'Data',newData);  %显示到表格中
 else
     msgbox('请先选择要删除的行！','确认','error');
 end
-
 
 % --- Executes on button press in pushbutton23.
 function pushbutton23_Callback(hObject, eventdata, handles)
@@ -1008,3 +1012,20 @@ global row4;
 global col4;
 row4=eventdata.Indices(1)
 col4=eventdata.Indices(2)
+
+
+% --- Executes when entered data in editable cell(s) in uitable2.
+function uitable2_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to uitable2 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+data_solve = get(handles.uitable2,'Data');
+yi=class(data_solve(1,:))
+yiyi=class(data_solve(1,1))
+er=class(data_solve(2,:))
+erer=class(data_solve(2,1))
